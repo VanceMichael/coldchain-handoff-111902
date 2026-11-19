@@ -171,125 +171,267 @@
     {
       "method": "GET",
       "path": "/logger/windows",
-      "note": "读数附着于安装段，workingBay 是换装台测点，已覆盖时间为左闭右开。间断不通过插值补齐。",
+      "note": "按箱封与左闭右开时间窗补查。读数附着于安装段，间断不插值。",
+      "steps": [
+        {
+          "bands": [
+            [
+              "09:00",
+              "09:24",
+              5
+            ],
+            [
+              "09:24",
+              "09:26",
+              13
+            ]
+          ],
+          "covered": [
+            [
+              "09:00",
+              "09:26"
+            ]
+          ],
+          "pending": [],
+          "sensor": "P6",
+          "seal": "H71",
+          "mounted": [
+            "09:00",
+            "09:32"
+          ]
+        },
+        {
+          "bands": [
+            [
+              "09:00",
+              "09:24",
+              5
+            ],
+            [
+              "09:24",
+              "09:26",
+              13
+            ]
+          ],
+          "covered": [
+            [
+              "09:00",
+              "09:26"
+            ]
+          ],
+          "pending": [],
+          "sensor": "P6",
+          "seal": "H71",
+          "mounted": [
+            "09:00",
+            "09:32"
+          ]
+        }
+      ],
+      "status": 200,
+      "kind": "json",
+      "query": {
+        "key": "H71",
+        "from": "09:00",
+        "to": "09:26"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/logger/windows",
+      "note": "换入箱的观测可早于实际换装，安装和货件归属同时成立才可用。",
+      "steps": [
+        {
+          "bands": [
+            [
+              "09:24",
+              "10:10",
+              4
+            ]
+          ],
+          "covered": [
+            [
+              "09:24",
+              "10:10"
+            ]
+          ],
+          "pending": [],
+          "sensor": "P9",
+          "seal": "H72",
+          "mounted": [
+            "09:24",
+            "10:10"
+          ]
+        },
+        {
+          "bands": [
+            [
+              "09:24",
+              "10:10",
+              4
+            ]
+          ],
+          "covered": [
+            [
+              "09:24",
+              "10:10"
+            ]
+          ],
+          "pending": [],
+          "sensor": "P9",
+          "seal": "H72",
+          "mounted": [
+            "09:24",
+            "10:10"
+          ]
+        }
+      ],
+      "status": 200,
+      "kind": "json",
+      "query": {
+        "key": "H72",
+        "from": "09:24",
+        "to": "10:10"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/logger/windows",
+      "note": "棚东的换装台记录独立于箱封记录。",
+      "steps": [
+        {
+          "bands": [
+            [
+              "09:20",
+              "09:28",
+              6
+            ]
+          ],
+          "covered": [
+            [
+              "09:20",
+              "09:28"
+            ]
+          ],
+          "pending": [],
+          "sensor": "P10",
+          "workingBay": "D5",
+          "mounted": [
+            "09:20",
+            "10:10"
+          ]
+        },
+        {
+          "bands": [
+            [
+              "09:20",
+              "09:28",
+              6
+            ]
+          ],
+          "covered": [
+            [
+              "09:20",
+              "09:28"
+            ]
+          ],
+          "pending": [],
+          "sensor": "P10",
+          "workingBay": "D5",
+          "mounted": [
+            "09:20",
+            "10:10"
+          ]
+        }
+      ],
+      "status": 200,
+      "kind": "json",
+      "query": {
+        "key": "D5",
+        "from": "09:20",
+        "to": "09:28"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/logger/windows",
+      "note": "D6 有待归档段。待归档与已确认无记录含义不同。",
+      "steps": [
+        {
+          "bands": [],
+          "covered": [],
+          "pending": [
+            [
+              "09:23",
+              "09:29"
+            ]
+          ]
+        },
+        {
+          "bands": [
+            [
+              "09:23",
+              "09:29",
+              10
+            ]
+          ],
+          "covered": [
+            [
+              "09:23",
+              "09:29"
+            ]
+          ],
+          "pending": [],
+          "sensor": "P13",
+          "workingBay": "D6",
+          "mounted": [
+            "09:20",
+            "10:10"
+          ]
+        }
+      ],
+      "status": 200,
+      "kind": "json",
+      "query": {
+        "key": "D6",
+        "from": "09:23",
+        "to": "09:29"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/receiver/acceptances",
+      "note": "claimId 是收货台记录的实际签收，不代表本单的其余货件已接手。",
       "steps": [
         [
           {
-            "sensor": "P6",
-            "seal": "H71",
-            "mounted": [
-              "09:00",
-              "09:32"
+            "desk": "北棚",
+            "sheet": "K-91",
+            "claimId": "B10",
+            "units": [
+              "C31"
             ],
-            "bands": [
-              [
-                "09:00",
-                "09:24",
-                5
-              ],
-              [
-                "09:24",
-                "09:26",
-                13
-              ]
-            ]
-          },
-          {
-            "sensor": "P9",
-            "seal": "H72",
-            "mounted": [
-              "09:24",
-              "10:10"
-            ],
-            "bands": [
-              [
-                "09:24",
-                "10:10",
-                4
-              ]
-            ]
-          },
-          {
-            "sensor": "P10",
-            "workingBay": "D5",
-            "mounted": [
-              "09:20",
-              "10:10"
-            ],
-            "bands": [
-              [
-                "09:20",
-                "09:28",
-                6
-              ]
-            ]
+            "arrival": "DL-95"
           }
         ],
         [
           {
-            "sensor": "P6",
-            "seal": "H71",
-            "mounted": [
-              "09:00",
-              "09:32"
+            "desk": "北棚",
+            "sheet": "K-91",
+            "claimId": "B10",
+            "units": [
+              "C31"
             ],
-            "bands": [
-              [
-                "09:00",
-                "09:24",
-                5
-              ],
-              [
-                "09:24",
-                "09:26",
-                13
-              ]
-            ]
+            "arrival": "DL-95"
           },
           {
-            "sensor": "P9",
-            "seal": "H72",
-            "mounted": [
-              "09:24",
-              "10:10"
+            "desk": "西棚",
+            "sheet": "K-95",
+            "claimId": "W11",
+            "units": [
+              "C32"
             ],
-            "bands": [
-              [
-                "09:24",
-                "10:10",
-                4
-              ]
-            ]
-          },
-          {
-            "sensor": "P10",
-            "workingBay": "D5",
-            "mounted": [
-              "09:20",
-              "10:10"
-            ],
-            "bands": [
-              [
-                "09:20",
-                "09:28",
-                6
-              ]
-            ]
-          },
-          {
-            "sensor": "P13",
-            "workingBay": "D6",
-            "mounted": [
-              "09:20",
-              "10:10"
-            ],
-            "bands": [
-              [
-                "09:23",
-                "09:29",
-                10
-              ]
-            ]
+            "arrival": "DL-95"
           }
         ]
       ],
@@ -299,11 +441,13 @@
     {
       "method": "POST",
       "path": "/receiver/receipts",
-      "note": "交接方接受 requestKey、units、arrival、finding。修订条目带原交接编号。",
+      "note": "暂缓、召回或放行凭据提供 requestKey、desk、sheet、units、arrival、finding。修订条目带原交接编号。",
       "steps": [
         {
           "fields": [
             "requestKey",
+            "desk",
+            "sheet",
             "units",
             "arrival",
             "finding"
@@ -314,6 +458,8 @@
         {
           "fields": [
             "requestKey",
+            "desk",
+            "sheet",
             "units",
             "arrival",
             "finding"

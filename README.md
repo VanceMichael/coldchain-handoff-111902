@@ -16,6 +16,10 @@
 - `GET /scanner/events` origin 和 scanId 共同定位一次扫描。事件时间为设备时刻，clockProof 给出修正秒数和误差界。
 - `GET /scanner/clocks` 秒差加到设备时刻，误差范围在结果两侧。
 - `GET /dock/packing` revision 为装箱动作修订号。units 是实物标签，bay 指触发换装时所在工位。
-- `GET /logger/windows` 读数附着于安装段，workingBay 是换装台测点，已覆盖时间为左闭右开。间断不通过插值补齐。
-- `POST /receiver/receipts` 交接方接受 requestKey、units、arrival、finding。修订条目带原交接编号。
+- `GET /logger/windows?key=H71&from=09:00&to=09:26` 按箱封与左闭右开时间窗补查。读数附着于安装段，间断不插值。
+- `GET /logger/windows?key=H72&from=09:24&to=10:10` 换入箱的观测可早于实际换装，安装和货件归属同时成立才可用。
+- `GET /logger/windows?key=D5&from=09:20&to=09:28` 棚东的换装台记录独立于箱封记录。
+- `GET /logger/windows?key=D6&from=09:23&to=09:29` D6 有待归档段。待归档与已确认无记录含义不同。
+- `GET /receiver/acceptances` claimId 是收货台记录的实际签收，不代表本单的其余货件已接手。
+- `POST /receiver/receipts` 暂缓、召回或放行凭据提供 requestKey、desk、sheet、units、arrival、finding。修订条目带原交接编号。
 - `GET /receiver/receipts` 以 requestKey 查询。

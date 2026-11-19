@@ -9,5 +9,24 @@
   "temperatureBandC": [
     2,
     8
+  ],
+  "receiverPicklists": [
+    {
+      "desk": "北棚",
+      "sheet": "K-91",
+      "units": [
+        "C31",
+        "C32"
+      ]
+    },
+    {
+      "desk": "西棚",
+      "sheet": "K-95",
+      "units": [
+        "C32",
+        "C33",
+        "C34"
+      ]
+    }
   ]
 }
