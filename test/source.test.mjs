@@ -56,6 +56,32 @@ if (ticketRoute) {
   });
 }
 
+test('温控记录可以按任意左闭右开窗口补领，并区分覆盖、待归档与未核实', async () => {
+  await send('/replay/phase', { phase: 0 });
+  const h71 = await (await request('/logger/windows?key=H71&from=09:10&to=09:20')).json();
+  assert.deepEqual(h71.bands, [['09:10', '09:20', 5]]);
+  assert.deepEqual(h71.covered, [['09:10', '09:20']]);
+  assert.deepEqual(h71.pending, []);
+  assert.deepEqual(h71.unverified, []);
+
+  // D6 只有待归档段：待归档不能当成“已确认无记录”
+  const d6 = await (await request('/logger/windows?key=D6&from=09:23&to=09:29')).json();
+  assert.deepEqual(d6.covered, []);
+  assert.deepEqual(d6.pending, [['09:23', '09:29']]);
+  // 放大窗口后，未归档段之外的部分要单独标出来
+  const d6Wide = await (await request('/logger/windows?key=D6&from=09:20&to=09:35')).json();
+  assert.deepEqual(d6Wide.pending, [['09:23', '09:29']]);
+  assert.deepEqual(d6Wide.unverified, [['09:20', '09:23'], ['09:29', '09:35']]);
+
+  // 窗口超出已有记录时，未覆盖的部分如实标成 unverified
+  const wide = await (await request('/logger/windows?key=H72&from=09:00&to=09:30')).json();
+  assert.deepEqual(wide.covered, [['09:24', '09:30']]);
+  assert.deepEqual(wide.unverified, [['09:00', '09:24']]);
+
+  assert.equal((await request('/logger/windows?key=ZZ&from=09:00&to=09:30')).status, 404);
+  assert.equal((await request('/logger/windows?key=D6&from=09:29&to=09:20')).status, 400);
+});
+
 const receiptRoute = scenario.routes.find(route => route.steps[0].response === 'receipt');
 if (receiptRoute) {
   test('受理记录可以按原经办号追认', async () => {

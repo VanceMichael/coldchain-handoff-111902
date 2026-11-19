@@ -9,6 +9,110 @@ function htmlEscape(value) {
   return String(value).replace(/[&<>"]/g, character => entities[character]);
 }
 
+function clockSeconds(text) {
+  const match = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(String(text));
+  if (!match) return null;
+  const value = Number(match[1]) * 3600 + Number(match[2]) * 60 + Number(match[3] ?? 0);
+  return Number.isFinite(value) ? value : null;
+}
+
+function clockText(seconds) {
+  const pad = number => String(number).padStart(2, '0');
+  return pad(Math.floor(seconds / 3600)) + ':' + pad(Math.floor((seconds % 3600) / 60)) +
+    (seconds % 60 ? ':' + pad(seconds % 60) : '');
+}
+
+function clipWindow(from, to, windowFrom, windowTo) {
+  const start = Math.max(from, windowFrom);
+  const end = Math.min(to, windowTo);
+  return start < end ? [clockText(start), clockText(end)] : null;
+}
+
+// 箱封或工位记录可以按任意左闭右开时间窗补查：只返回窗口内已归档的读数、
+// 已覆盖区间和仍在待归档的区间。未覆盖的空档不插值，也不当成“无记录”。
+function sliceLoggerRecord(record, from, to) {
+  const windowFrom = clockSeconds(from);
+  const windowTo = clockSeconds(to);
+  if (windowFrom === null || windowTo === null || windowTo < windowFrom) return null;
+  const slice = {
+    bands: [],
+    covered: [],
+    pending: [],
+  };
+  if (record.sensor) slice.sensor = record.sensor;
+  if (record.seal) slice.seal = record.seal;
+  if (record.workingBay) slice.workingBay = record.workingBay;
+  if (record.mounted) slice.mounted = [...record.mounted];
+  for (const [start, end, value] of record.bands || []) {
+    const clipped = clipWindow(clockSeconds(start), clockSeconds(end), windowFrom, windowTo);
+    if (clipped) slice.bands.push([clipped[0], clipped[1], value]);
+  }
+  for (const [start, end] of record.covered || []) {
+    const clipped = clipWindow(clockSeconds(start), clockSeconds(end), windowFrom, windowTo);
+    if (clipped) slice.covered.push(clipped);
+  }
+  for (const [start, end] of record.pending || []) {
+    const clipped = clipWindow(clockSeconds(start), clockSeconds(end), windowFrom, windowTo);
+    if (clipped) slice.pending.push(clipped);
+  }
+  // 窗口里既不在已归档覆盖、也不在已知待归档段的部分：尚无归档依据，不能视为无记录。
+  const pieces = [[windowFrom, windowTo]];
+  const cuts = [...slice.covered, ...slice.pending]
+    .map(([start, end]) => [clockSeconds(start), clockSeconds(end)])
+    .filter(([start, end]) => start !== null && end !== null);
+  for (const [cutStart, cutEnd] of cuts) {
+    for (let index = pieces.length - 1; index >= 0; index -= 1) {
+      const [start, end] = pieces[index];
+      if (cutEnd <= start || cutStart >= end) continue;
+      pieces.splice(index, 1);
+      if (start < cutStart) pieces.push([start, cutStart]);
+      if (cutEnd < end) pieces.push([cutEnd, end]);
+    }
+  }
+  slice.unverified = pieces.sort((left, right) => left[0] - right[0])
+    .map(([start, end]) => [clockText(start), clockText(end)]);
+  return slice;
+}
+
+function loggerArchives(phase) {
+  const archives = new Map();
+  for (const candidate of fixture.routes) {
+    if (candidate.path !== '/logger/windows' || candidate.kind === 'html') continue;
+    const record = candidate.steps[phase];
+    if (!record) continue;
+    const key = record.seal ?? record.workingBay;
+    if (!key) {
+      // 箱封/工位未知时，按路由登记的顺序键归档（D6 等工位记录以查询键登记）
+      const queryKey = candidate.query?.key;
+      if (!queryKey) continue;
+      const bucket = archives.get(queryKey) ?? { bands: [], covered: [], pending: [] };
+      bucket.bands.push(...(record.bands || []));
+      bucket.covered.push(...(record.covered || []));
+      bucket.pending.push(...(record.pending || []));
+      if (record.sensor) bucket.sensor = record.sensor;
+      archives.set(queryKey, bucket);
+      continue;
+    }
+    const existing = archives.get(key);
+    if (!existing) {
+      archives.set(key, {
+        bands: [...(record.bands || [])],
+        covered: [...(record.covered || [])],
+        pending: [...(record.pending || [])],
+        ...(record.sensor ? { sensor: record.sensor } : {}),
+        ...(record.seal ? { seal: record.seal } : {}),
+        ...(record.workingBay ? { workingBay: record.workingBay } : {}),
+        ...(record.mounted ? { mounted: [...record.mounted] } : {}),
+      });
+      continue;
+    }
+    existing.bands.push(...(record.bands || []));
+    existing.covered.push(...(record.covered || []));
+    existing.pending.push(...(record.pending || []));
+  }
+  return archives;
+}
+
 function portalMarkup(title, body) {
   return '<!doctype html><html lang="zh-CN"><meta charset="utf-8">' +
     '<meta name="viewport" content="width=device-width, initial-scale=1">' +
@@ -111,7 +215,21 @@ export function createSource() {
       const route = fixture.routes.find(candidate => candidate.path === url.pathname &&
         candidate.method === request.method &&
         Object.entries(candidate.query || {}).every(([name, value]) => url.searchParams.get(name) === value));
-      if (!route) return answer(404, { error: '查无来源资料' });
+      if (!route) {
+        if (url.pathname === '/logger/windows' && request.method === 'GET') {
+          const key = url.searchParams.get('key');
+          const from = url.searchParams.get('from');
+          const to = url.searchParams.get('to');
+          if (!key || !from || !to) return answer(400, { error: '按箱封或工位补查需提供 key、from、to' });
+          const archives = loggerArchives(phase);
+          const archived = archives.get(key);
+          if (!archived) return answer(404, { error: '查无来源资料' });
+          const slice = sliceLoggerRecord(archived, from, to);
+          if (!slice) return answer(400, { error: '时间窗应满足 from 不晚于 to' });
+          return answer(200, { key, from, to, archived: true, ...slice, ...(archived.pending.length || slice.pending.length ? { note: '窗口内仍有待归档段，不能视为已确认无记录' } : {}) });
+        }
+        return answer(404, { error: '查无来源资料' });
+      }
       const value = route.steps[phase];
       if (value.lookup) {
         const key = url.searchParams.get(value.key);
