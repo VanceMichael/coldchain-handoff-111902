@@ -1,0 +1,346 @@
+{
+  "label": "冷链转运资料交换服务",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/scanner/events",
+      "note": "origin 和 scanId 共同定位一次扫描。事件时间为设备时刻，clockProof 给出修正秒数和误差界。",
+      "steps": [
+        [
+          {
+            "origin": "棚东",
+            "scanId": "S10",
+            "observed": "2026-11-19T09:23:00Z",
+            "clockProof": "K6",
+            "action": "卸空",
+            "seal": "H71"
+          },
+          {
+            "origin": "棚西",
+            "scanId": "S10",
+            "observed": "2026-11-19T09:25:00Z",
+            "clockProof": "K8",
+            "action": "装箱",
+            "seal": "H72"
+          },
+          {
+            "origin": "棚西",
+            "scanId": "S10",
+            "observed": "2026-11-19T09:25:00Z",
+            "clockProof": "K8",
+            "action": "装箱",
+            "seal": "H72"
+          }
+        ],
+        [
+          {
+            "origin": "棚东",
+            "scanId": "S10",
+            "observed": "2026-11-19T09:23:00Z",
+            "clockProof": "K6",
+            "action": "卸空",
+            "seal": "H71"
+          },
+          {
+            "origin": "棚西",
+            "scanId": "S10",
+            "observed": "2026-11-19T09:25:00Z",
+            "clockProof": "K8",
+            "action": "装箱",
+            "seal": "H72"
+          },
+          {
+            "origin": "棚西",
+            "scanId": "S10",
+            "observed": "2026-11-19T09:25:00Z",
+            "clockProof": "K8",
+            "action": "装箱",
+            "seal": "H72"
+          }
+        ]
+      ],
+      "status": 200,
+      "kind": "json"
+    },
+    {
+      "method": "GET",
+      "path": "/scanner/clocks",
+      "note": "秒差加到设备时刻，误差范围在结果两侧。",
+      "steps": [
+        [
+          {
+            "id": "K6",
+            "offsetSeconds": 4,
+            "uncertaintySeconds": 2
+          },
+          {
+            "id": "K8",
+            "offsetSeconds": -8,
+            "uncertaintySeconds": 2
+          }
+        ],
+        [
+          {
+            "id": "K6",
+            "offsetSeconds": 4,
+            "uncertaintySeconds": 2
+          },
+          {
+            "id": "K8",
+            "offsetSeconds": -8,
+            "uncertaintySeconds": 2
+          }
+        ]
+      ],
+      "status": 200,
+      "kind": "json"
+    },
+    {
+      "method": "GET",
+      "path": "/dock/packing",
+      "note": "revision 为装箱动作修订号。units 是实物标签，bay 指触发换装时所在工位。",
+      "steps": [
+        [
+          {
+            "move": "T4",
+            "revision": 1,
+            "oldSeal": "H71",
+            "newSeal": "H72",
+            "units": [
+              "C31",
+              "C32"
+            ],
+            "bay": "D5",
+            "exit": [
+              "棚东",
+              "S10"
+            ],
+            "enter": [
+              "棚西",
+              "S10"
+            ]
+          },
+          {
+            "move": "T5",
+            "revision": 1,
+            "oldSeal": "H71",
+            "newSeal": "H74",
+            "units": [
+              "C33",
+              "C34"
+            ],
+            "bay": "D6"
+          }
+        ],
+        [
+          {
+            "move": "T4",
+            "revision": 2,
+            "oldSeal": "H71",
+            "newSeal": "H72",
+            "units": [
+              "C31"
+            ],
+            "bay": "D5",
+            "exit": [
+              "棚东",
+              "S10"
+            ],
+            "enter": [
+              "棚西",
+              "S10"
+            ]
+          },
+          {
+            "move": "T5",
+            "revision": 2,
+            "oldSeal": "H71",
+            "newSeal": "H74",
+            "units": [
+              "C32",
+              "C33",
+              "C34"
+            ],
+            "bay": "D6"
+          }
+        ]
+      ],
+      "status": 200,
+      "kind": "json"
+    },
+    {
+      "method": "GET",
+      "path": "/logger/windows",
+      "note": "读数附着于安装段，workingBay 是换装台测点，已覆盖时间为左闭右开。间断不通过插值补齐。",
+      "steps": [
+        [
+          {
+            "sensor": "P6",
+            "seal": "H71",
+            "mounted": [
+              "09:00",
+              "09:32"
+            ],
+            "bands": [
+              [
+                "09:00",
+                "09:24",
+                5
+              ],
+              [
+                "09:24",
+                "09:26",
+                13
+              ]
+            ]
+          },
+          {
+            "sensor": "P9",
+            "seal": "H72",
+            "mounted": [
+              "09:24",
+              "10:10"
+            ],
+            "bands": [
+              [
+                "09:24",
+                "10:10",
+                4
+              ]
+            ]
+          },
+          {
+            "sensor": "P10",
+            "workingBay": "D5",
+            "mounted": [
+              "09:20",
+              "10:10"
+            ],
+            "bands": [
+              [
+                "09:20",
+                "09:28",
+                6
+              ]
+            ]
+          }
+        ],
+        [
+          {
+            "sensor": "P6",
+            "seal": "H71",
+            "mounted": [
+              "09:00",
+              "09:32"
+            ],
+            "bands": [
+              [
+                "09:00",
+                "09:24",
+                5
+              ],
+              [
+                "09:24",
+                "09:26",
+                13
+              ]
+            ]
+          },
+          {
+            "sensor": "P9",
+            "seal": "H72",
+            "mounted": [
+              "09:24",
+              "10:10"
+            ],
+            "bands": [
+              [
+                "09:24",
+                "10:10",
+                4
+              ]
+            ]
+          },
+          {
+            "sensor": "P10",
+            "workingBay": "D5",
+            "mounted": [
+              "09:20",
+              "10:10"
+            ],
+            "bands": [
+              [
+                "09:20",
+                "09:28",
+                6
+              ]
+            ]
+          },
+          {
+            "sensor": "P13",
+            "workingBay": "D6",
+            "mounted": [
+              "09:20",
+              "10:10"
+            ],
+            "bands": [
+              [
+                "09:23",
+                "09:29",
+                10
+              ]
+            ]
+          }
+        ]
+      ],
+      "status": 200,
+      "kind": "json"
+    },
+    {
+      "method": "POST",
+      "path": "/receiver/receipts",
+      "note": "交接方接受 requestKey、units、arrival、finding。修订条目带原交接编号。",
+      "steps": [
+        {
+          "fields": [
+            "requestKey",
+            "units",
+            "arrival",
+            "finding"
+          ],
+          "pendingUntil": 0,
+          "response": "receipt"
+        },
+        {
+          "fields": [
+            "requestKey",
+            "units",
+            "arrival",
+            "finding"
+          ],
+          "pendingUntil": 0,
+          "response": "receipt"
+        }
+      ],
+      "status": 200,
+      "kind": "json"
+    },
+    {
+      "method": "GET",
+      "path": "/receiver/receipts",
+      "note": "以 requestKey 查询。",
+      "steps": [
+        {
+          "lookup": "receipt",
+          "key": "requestKey"
+        },
+        {
+          "lookup": "receipt",
+          "key": "requestKey"
+        }
+      ],
+      "status": 200,
+      "kind": "json"
+    }
+  ]
+}
